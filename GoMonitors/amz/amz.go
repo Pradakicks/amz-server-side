@@ -17,6 +17,7 @@ type AmzMonitor struct {
 	url       string
 	payload   *strings.Reader
 	available bool
+	Client    http.Client
 }
 
 type postData struct {
@@ -32,18 +33,18 @@ func NewAmzMonitor(asin string, offerId string, category string) {
 	m.Category = category
 	m.OfferId = offerId
 	m.url = "https://www.amazon.com/gp/product/features/dp-fast-track/udp-ajax-handler/get-quantity-update-message.html?ie=UTF8"
-	m.payload = strings.NewReader(fmt.Sprintf("asin=%s&quantity=1&merchantId=A3KJ3YGUCB8ID4", m.Asin))
 	m.available = false
 	for {
-	//	fmt.Println(m.url)
 		m.monitor()
 	}
 }
 
 func (m *AmzMonitor) monitor() {
 	var currentAvailability bool
-	req, _ := http.NewRequest("POST", m.url, m.payload)
+
+	req, _ := http.NewRequest("POST", m.url, strings.NewReader(fmt.Sprintf("asin=%s&quantity=1&merchantId=A3KJ3YGUCB8ID4", m.Asin)))
 	req.Header.Add("authority", "www.amazon.com")
+	req.Header.Add("sec-ch-ua", `" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"`)
 	req.Header.Add("dnt", "1")
 	req.Header.Add("rtt", "50")
 	req.Header.Add("sec-ch-ua-mobile", "?0")
@@ -60,14 +61,13 @@ func (m *AmzMonitor) monitor() {
 	req.Header.Add("accept-language", "en-US,en;q=0.9")
 
 	res, _ := http.DefaultClient.Do(req)
-
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 	defer func() {
-		test := fmt.Sprintf("Status Code : %d Asin : %s Availability : %t Current : %t", res.StatusCode, m.Asin, m.available, currentAvailability)
+		test := fmt.Sprintf("Status Code : %d Asin : %s Body Length : %d Availability : %t Current : %t", res.StatusCode, m.Asin, len(string(body)), m.available, currentAvailability)
 		fmt.Println(test)
 	}()
-	fmt.Println(string(body))
+	fmt.Println(len(string(body)))
 	if len(string(body)) > 150 {
 		currentAvailability = true
 	} else {
@@ -83,7 +83,7 @@ func (m *AmzMonitor) monitor() {
 
 func (m *AmzMonitor) sendRestock() {
 	pay := postData{Time: time.Now().Unix(), Asin: m.Asin, OfferId: m.OfferId, Category: m.Category}
-	url := "http://localhost:3030/"
+	url := "http://159.203.179.167:3030/"
 	payload, err := json.Marshal(pay)
 	fmt.Println(string(payload))
 	if err != nil {
