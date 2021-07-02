@@ -68,11 +68,16 @@ func (m *AmzMonitor) monitor() {
 		fmt.Println(test)
 	}()
 	fmt.Println(len(string(body)))
-	if len(string(body)) > 150 {
+	if res.StatusCode != 200 {
+		fmt.Println(string(body))
+	} else {
+		if len(string(body)) > 150 {
 		currentAvailability = true
 	} else {
 		currentAvailability = false
 	}
+	}
+	
 
 	if currentAvailability && !m.available {
 		go m.sendRestock()
