@@ -102,5 +102,6 @@ func (m *AmzMonitor) sendRestock() {
 		return
 	}
 	defer res.Body.Close()
+	fmt.Println(res, res.StatusCode)
 
 }
