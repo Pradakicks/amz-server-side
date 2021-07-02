@@ -13,6 +13,6 @@ ADD . /app
 WORKDIR /app
 RUN go build -o main .
 COPY . .
-EXPOSE 3030
+EXPOSE 3031
 
 CMD ["/app/main"]
