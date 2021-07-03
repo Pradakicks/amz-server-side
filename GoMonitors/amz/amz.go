@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -40,6 +41,9 @@ func NewAmzMonitor(asin string, offerId string, category string) {
 }
 
 func (m *AmzMonitor) monitor() {
+	proxyUrl, _ := url.Parse("http://bC19Ezqr:9P3Z7SACZG3WRGIaA7IwMeZviSojEWJhnRUpZkcj3EqylUCzZjJtu0BKr3BdPcczzFDbT-wbNpUuNu@ustr24.resi.reddirt.io:42626")
+	myClient := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
+
 	var currentAvailability bool
 
 	req, _ := http.NewRequest("POST", m.url, strings.NewReader(fmt.Sprintf("asin=%s&quantity=1&merchantId=A3KJ3YGUCB8ID4", m.Asin)))
@@ -60,24 +64,24 @@ func (m *AmzMonitor) monitor() {
 	req.Header.Add("sec-fetch-dest", "empty")
 	req.Header.Add("accept-language", "en-US,en;q=0.9")
 
-	res, _ := http.DefaultClient.Do(req)
+	res, _ := myClient.Do(req)
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 	defer func() {
 		test := fmt.Sprintf("Status Code : %d Asin : %s Body Length : %d Availability : %t Current : %t", res.StatusCode, m.Asin, len(string(body)), m.available, currentAvailability)
 		fmt.Println(test)
 	}()
-	fmt.Println(len(string(body)))
 	if res.StatusCode != 200 {
 		fmt.Println(string(body))
 	} else {
+		fmt.Println(len(string(body)))
 		if len(string(body)) > 150 {
-		currentAvailability = true
-	} else {
-		currentAvailability = false
+			currentAvailability = true
+		} else {
+			currentAvailability = false
+		}
+
 	}
-	}
-	
 
 	if currentAvailability && !m.available {
 		go m.sendRestock()
