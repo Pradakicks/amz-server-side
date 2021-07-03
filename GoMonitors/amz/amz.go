@@ -130,6 +130,7 @@ func (m *AmzMonitor) monitor() {
 	}()
 	if res.StatusCode != 200 {
 		fmt.Println(string(body))
+		return
 	} else {
 		fmt.Println(len(string(body)))
 		if len(string(body)) > 150 {
