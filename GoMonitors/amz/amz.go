@@ -146,7 +146,6 @@ func (m *AmzMonitor) monitor() {
 
 	m.available = currentAvailability
 }
-
 func (m *AmzMonitor) sendRestock() {
 	pay := postData{Time: time.Now().Unix(), Asin: m.Asin, OfferId: m.OfferId, Category: m.Category}
 	url := "http://159.203.179.167:3030/"
