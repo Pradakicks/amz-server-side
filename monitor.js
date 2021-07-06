@@ -4,7 +4,7 @@ const { JSDOM } = jsdom;
 const proxyList = require("./proxy.json")
 const { HttpProxyAgent, HttpsProxyAgent } = require('hpagent');
 
-async function monitor(SKU) {
+async function monitor(SKU, OFFERID, CATEGORY) {
     let available = false
     let proxyCount = 0
     while (true) {
@@ -43,7 +43,7 @@ async function monitor(SKU) {
 
             let options = {
                 method: "GET",
-                url: `https://httpbin.org/ip`,
+                url: `https://www.amazon.com/portal-migration/aod?asin=${SKU}&m=ATVPDKIKX0DER&pldnSite=1`,
                 headers : {
                     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                     "accept-language": "en-US,en;q=0.9",
@@ -52,15 +52,17 @@ async function monitor(SKU) {
                     "ect": "4g",
                     "pragma": "no-cache",
                     "rtt": "50",
+                    "sec-ch-ua": "\" Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"91\", \"Chromium\";v=\"91\"",
+                    "sec-ch-ua-mobile": "?0",
                     "sec-fetch-dest": "document",
                     "sec-fetch-mode": "navigate",
                     "sec-fetch-site": "none",
                     "sec-fetch-user": "?1",
-                    "upgrade-insecure-requests": "1"
+                    "upgrade-insecure-requests": "1",
+                    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
                 }
             }
 
-            
             let monitor = await client1(options)
             console.log(monitor.body)
             const { document } = (new JSDOM(monitor?.body)).window
@@ -93,6 +95,18 @@ async function monitor(SKU) {
         
                     if(!available && currentAvailability) {
                         console.log("In Stock")
+                        const options = {
+                        method: 'POST',
+                        url: 'http://159.203.179.167:3030/',
+                        body: {category: CATEGORY, offerId: OFFERID, ASIN: SKU, time: Date.now()},
+                        json: true
+                        };
+
+                        got(options, function (error, response, body) {
+                        if (error) console.log(error);
+
+                        console.log(body);
+                        });
                     } 
         
                     available = currentAvailability
@@ -113,4 +127,4 @@ async function monitor(SKU) {
     
 }
 
-monitor("B07BYYQD2B")
+monitor("B00MQDWQMO", 12341234, "GPU")

@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     em.emit('restock', JSON.stringify(req.body))
-    res.send("Good")
+    res.send(JSON.stringify(req.body))
 })
 
 io.on("connect", (socket) => {
