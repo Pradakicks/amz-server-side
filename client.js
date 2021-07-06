@@ -1,7 +1,7 @@
 const { io } = require("socket.io-client") 
 
 // const socket = io("ws://localhost:3030/", {});
-const socket = io("ws://amz-server-side-2neqpl2cka-uc.a.run.app/", {});
+const socket = io("ws://159.203.179.167:3030/", {});
 https:///
 socket.on("connect", () => {
     console.log(`connect ${socket.id}`);
