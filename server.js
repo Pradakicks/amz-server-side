@@ -21,6 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
+    console.log(req.body)
     console.log(Date.now() - req.body.time)
     em.emit('restock', JSON.stringify(req.body))
     res.send(JSON.stringify(req.body))
