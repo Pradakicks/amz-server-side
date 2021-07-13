@@ -16,12 +16,12 @@ var events = require('events');
 var em = new events.EventEmitter()
 
 
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
+    console.log(Date.now() - req.body.time)
     em.emit('restock', JSON.stringify(req.body))
     res.send(JSON.stringify(req.body))
 })
@@ -30,22 +30,12 @@ io.on("connect", (socket) => {
 
     console.log(`connect ${socket.id}`);
 
-    socket.on("ping", (cb) => {
-        console.log("ping");
-        cb();
-    });
-
     em.on("restock", data => {
         console.log(`Local Event Emitter Data : ${data}`)
+        console.log(Date.now() - JSON.parse(data).time)
         socket.emit("restock", data)
+
     })
-    // setInterval(() => {
-    //     socket.emit("restock", {
-    //         pid : Date.now(),
-    //         offerId : "1234"
-    //     });
-    // }, 1000)
-    
 
     socket.on("disconnect", () => {
         console.log(`disconnect ${socket.id}`);
